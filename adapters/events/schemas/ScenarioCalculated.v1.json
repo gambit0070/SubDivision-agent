@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScenarioCalculated",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "version",
+    "occurred_at",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event_type": {
+      "type": "string",
+      "const": "ScenarioCalculated"
+    },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "property_id",
+        "scenario_type",
+        "profit",
+        "roi_simple"
+      ],
+      "properties": {
+        "property_id": {
+          "type": "string"
+        },
+        "scenario_type": {
+          "type": "string",
+          "enum": [
+            "demo_subdivide_sell_lots",
+            "retain_partial_demo_subdivide",
+            "demo_build_sell"
+          ]
+        },
+        "lots": {
+          "type": "integer"
+        },
+        "revenue": {
+          "type": "number"
+        },
+        "total_cost": {
+          "type": "number"
+        },
+        "holding_cost": {
+          "type": "number"
+        },
+        "profit": {
+          "type": "number"
+        },
+        "roi_simple": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

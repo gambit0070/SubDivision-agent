@@ -1,0 +1,4 @@
+r_code,lga,min_lot_sqm,avg_lot_sqm,min_frontage_m,notes,valid_from,valid_to
+R20,*,350,450,10,Base R20,2025-01-01,
+R25,*,300,350,8,Base R25,2025-01-01,
+R30,*,260,300,8,Base R30,2025-01-01,

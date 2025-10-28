@@ -1,0 +1,27 @@
+{
+  "prop": {
+    "address": "123 Sample St, Thornlie WA",
+    "land_area_sqm": 760,
+    "frontage_m": 12.5,
+    "r_code": "R20",
+    "purchase_price": 680000
+  },
+  "asm": {
+    "annual_interest_rate": 0.07,
+    "subdiv_months": 6,
+    "build_months": 18,
+    "weekly_rent_if_retain": 500,
+    "settlement_cost": 1000,
+    "contingency_pct": 0.1
+  },
+  "market": {
+    "land_price_per_sqm_small_lot": 1600,
+    "house_arv": 900000,
+    "land_target_lot_size_sqm": 200
+  },
+  "scen": {
+    "allow_retain": true,
+    "target_lot_size_sqm": 200,
+    "min_frontage_required_m": 10.0
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ZoningEvaluated",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "version",
+    "occurred_at",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event_type": {
+      "type": "string",
+      "const": "ZoningEvaluated"
+    },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "property_id",
+        "r_code"
+      ],
+      "properties": {
+        "property_id": {
+          "type": "string"
+        },
+        "r_code": {
+          "type": "string"
+        },
+        "overlays": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "min_frontage_m": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "avg_lot_sqm": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

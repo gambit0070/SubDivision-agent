@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ListingCreated",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "version",
+    "occurred_at",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event_type": {
+      "type": "string",
+      "const": "ListingCreated"
+    },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "listing_id",
+        "property_id",
+        "address",
+        "land_area_sqm",
+        "asking_price",
+        "source"
+      ],
+      "properties": {
+        "listing_id": {
+          "type": "string"
+        },
+        "property_id": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "suburb_code": {
+          "type": "string"
+        },
+        "land_area_sqm": {
+          "type": "number"
+        },
+        "frontage_m": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "asking_price": {
+          "type": "number"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

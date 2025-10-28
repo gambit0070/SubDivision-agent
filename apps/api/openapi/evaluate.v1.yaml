@@ -1,0 +1,109 @@
+openapi: 3.0.3
+info:
+  title: Subdivision Evaluator API
+  version: 1.0.0
+paths:
+  /evaluate:
+    post:
+      summary: Evaluate subdivision scenarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationResponse'
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    EvaluateRequest:
+      type: object
+      required: [prop, asm, market]
+      properties:
+        prop: { $ref: '#/components/schemas/PropertyInput' }
+        asm:  { $ref: '#/components/schemas/Assumptions' }
+        market: { $ref: '#/components/schemas/MarketBenchmarks' }
+        scen: { $ref: '#/components/schemas/ScenarioSettings' }
+    PropertyInput:
+      type: object
+      required: [land_area_sqm, purchase_price]
+      properties:
+        address: { type: string, nullable: true }
+        suburb: { type: string, nullable: true }
+        land_area_sqm: { type: number }
+        frontage_m: { type: number, nullable: true }
+        r_code: { type: string, nullable: true }
+        purchase_price: { type: number }
+    Assumptions:
+      type: object
+      properties:
+        demo_cost_fixed_min: { type: number, default: 20000 }
+        demo_cost_fixed_max: { type: number, default: 50000 }
+        subdiv_cost_range_min: { type: number, default: 30000 }
+        subdiv_cost_range_max: { type: number, default: 50000 }
+        min_build_cost_total: { type: number, default: 300000 }
+        annual_interest_rate: { type: number, default: 0.07 }
+        subdiv_months: { type: integer, default: 6 }
+        build_months: { type: integer, default: 18 }
+        weekly_rent_if_retain: { type: number, default: 500 }
+        stamp_duty: { type: number, nullable: true }
+        settlement_cost: { type: number, default: 1000 }
+        council_rates_annual: { type: number, default: 1200 }
+        contingency_pct: { type: number, default: 0.1 }
+    MarketBenchmarks:
+      type: object
+      required: [land_price_per_sqm_small_lot]
+      properties:
+        land_price_per_sqm_small_lot: { type: number }
+        house_arv: { type: number, nullable: true }
+        land_target_lot_size_sqm: { type: integer, default: 200 }
+    ScenarioSettings:
+      type: object
+      properties:
+        allow_retain: { type: boolean, default: true }
+        target_lot_size_sqm: { type: integer, default: 200 }
+        min_frontage_required_m: { type: number, default: 10.0 }
+    ScenarioResult:
+      type: object
+      properties:
+        scenario: { type: string }
+        lots: { type: integer }
+        revenue: { type: number }
+        total_cost: { type: number }
+        holding_cost: { type: number }
+        profit: { type: number }
+        margin_on_cost: { type: number }
+        roi_simple: { type: number }
+        notes: { type: array, items: { type: string } }
+    AdviceItem:
+      type: object
+      properties:
+        code: { type: string }
+        severity: { type: string, enum: ["low","medium","high"] }
+        message: { type: string }
+    EvaluationResponse:
+      type: object
+      properties:
+        price_per_sqm: { type: number }
+        lot_yield_estimate: { type: integer }
+        scenarios: { type: array, items: { $ref: '#/components/schemas/ScenarioResult' } }
+        advice: { type: array, items: { $ref: '#/components/schemas/AdviceItem' } }
+        sensitivity:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              base_profit: { type: number }
+              best_profit: { type: number }
+              worst_profit: { type: number }

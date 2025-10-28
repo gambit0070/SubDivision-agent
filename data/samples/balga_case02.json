@@ -1,0 +1,27 @@
+{
+  "prop": {
+    "address": "45 Example Rd, Balga WA",
+    "land_area_sqm": 728,
+    "frontage_m": 10.0,
+    "r_code": "R30",
+    "purchase_price": 640000
+  },
+  "asm": {
+    "annual_interest_rate": 0.065,
+    "subdiv_months": 6,
+    "build_months": 16,
+    "weekly_rent_if_retain": 520,
+    "settlement_cost": 1200,
+    "contingency_pct": 0.1
+  },
+  "market": {
+    "land_price_per_sqm_small_lot": 1750,
+    "house_arv": 920000,
+    "land_target_lot_size_sqm": 200
+  },
+  "scen": {
+    "allow_retain": true,
+    "target_lot_size_sqm": 200,
+    "min_frontage_required_m": 8.0
+  }
+}

@@ -1,0 +1,19 @@
+features:
+  - name: price_per_sqm
+    dtype: float
+    source_service: subdivision
+    description: purchase_price / land_area_sqm
+    freshness: request
+    version: 1
+  - name: median_small_lot_psqm_1km
+    dtype: float
+    source_service: market-data
+    description: Median $/sqm for 170–250 sqm lots within 1km
+    freshness: 7d
+    version: 1
+  - name: lot_yield_estimate
+    dtype: int
+    source_service: subdivision
+    description: Estimated lots count
+    freshness: request
+    version: 1

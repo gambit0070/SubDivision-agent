@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CompsUpdated",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "version",
+    "occurred_at",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event_type": {
+      "type": "string",
+      "const": "CompsUpdated"
+    },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "suburb_code",
+        "land_smalllot_psqm_median"
+      ],
+      "properties": {
+        "suburb_code": {
+          "type": "string"
+        },
+        "land_smalllot_psqm_median": {
+          "type": "number"
+        },
+        "house_arv_median": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "lookback_months": {
+          "type": "integer",
+          "default": 6
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

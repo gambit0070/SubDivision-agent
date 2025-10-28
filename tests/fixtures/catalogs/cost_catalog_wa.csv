@@ -1,0 +1,6 @@
+item_code,item_name,unit,default_value,min_value,max_value,region,notes
+DEMO_BASE,Demolition (simple),AUD,35000,20000,50000,WA,Avg house
+SUBDIV_BASE,Subdivision (2 lots),AUD,40000,30000,50000,WA,Base WAPC+survey+titling
+UTILITIES_BASE,Utilities,AUD,15000,10000,30000,WA,Connections
+MARKETING,Marketing,percent,0.025,0.02,0.03,WA,Of revenue
+SETTLEMENT,Settlement,AUD,1000,800,1500,WA,Conveyancing
