@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from apps.api.routes.evaluate import router as evaluate_router
 
 app = FastAPI(
     title="Subdivision Evaluator API",
@@ -7,6 +8,7 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
 )
 
+app.include_router(evaluate_router)
 
 @app.get("/health")
 def health() -> dict:
