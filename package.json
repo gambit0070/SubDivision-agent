@@ -1,13 +1,6 @@
 {
-  "name": "subdivision-service",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "typecheck": "echo \"(placeholder) run ts typecheck in apps/web\"",
-    "generate:types": "bash scripts/generate_api_types.sh"
+    "generate:types": "npx openapi-typescript contracts/api/evaluate.v1.yaml -o packages/types/src/api.ts"
   },
   "devDependencies": {
     "openapi-typescript": "^7.4.3"

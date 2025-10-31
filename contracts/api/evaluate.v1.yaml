@@ -5,7 +5,9 @@ info:
 paths:
   /evaluate:
     post:
-      summary: Evaluate subdivision scenarios
+      tags: [evaluate]
+      summary: Evaluate subdivision scenarios for a property
+      operationId: evaluate
       requestBody:
         required: true
         content:
@@ -19,91 +21,142 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EvaluationResponse'
-  /health:
-    get:
-      summary: Health check
-      responses:
-        '200':
-          description: OK
+        '422':
+          description: Validation error
 components:
   schemas:
-    EvaluateRequest:
-      type: object
-      required: [prop, asm, market]
-      properties:
-        prop: { $ref: '#/components/schemas/PropertyInput' }
-        asm:  { $ref: '#/components/schemas/Assumptions' }
-        market: { $ref: '#/components/schemas/MarketBenchmarks' }
-        scen: { $ref: '#/components/schemas/ScenarioSettings' }
+    Severity:
+      type: string
+      enum: [low, medium, high]
+
     PropertyInput:
       type: object
+      additionalProperties: false
       required: [land_area_sqm, purchase_price]
       properties:
         address: { type: string, nullable: true }
-        suburb: { type: string, nullable: true }
-        land_area_sqm: { type: number }
-        frontage_m: { type: number, nullable: true }
-        r_code: { type: string, nullable: true }
-        purchase_price: { type: number }
+        suburb:  { type: string, nullable: true }
+        land_area_sqm:
+          type: number
+          exclusiveMinimum: 0
+          description: Площадь участка, м²
+        frontage_m:
+          type: number
+          exclusiveMinimum: 0
+          nullable: true
+          description: Фронтаж, м
+        r_code:
+          type: string
+          nullable: true
+          description: Например R20/R25/R30
+        purchase_price:
+          type: number
+          exclusiveMinimum: 0
+          description: Цена покупки, AUD
+
     Assumptions:
       type: object
+      additionalProperties: false
       properties:
         demo_cost_fixed_min: { type: number, default: 20000 }
         demo_cost_fixed_max: { type: number, default: 50000 }
         subdiv_cost_range_min: { type: number, default: 30000 }
         subdiv_cost_range_max: { type: number, default: 50000 }
         min_build_cost_total: { type: number, default: 300000 }
-        annual_interest_rate: { type: number, default: 0.07 }
-        subdiv_months: { type: integer, default: 6 }
-        build_months: { type: integer, default: 18 }
-        weekly_rent_if_retain: { type: number, default: 500 }
+        annual_interest_rate: { type: number, minimum: 0, maximum: 1, default: 0.07 }
+        subdiv_months: { type: integer, minimum: 0, default: 6 }
+        build_months: { type: integer, minimum: 0, default: 18 }
+        weekly_rent_if_retain: { type: number, minimum: 0, default: 500 }
         stamp_duty: { type: number, nullable: true }
-        settlement_cost: { type: number, default: 1000 }
-        council_rates_annual: { type: number, default: 1200 }
-        contingency_pct: { type: number, default: 0.1 }
+        settlement_cost: { type: number, minimum: 0, default: 1000 }
+        council_rates_annual: { type: number, minimum: 0, default: 1200 }
+        contingency_pct: { type: number, minimum: 0, maximum: 1, default: 0.10 }
+
     MarketBenchmarks:
       type: object
+      additionalProperties: false
       required: [land_price_per_sqm_small_lot]
       properties:
-        land_price_per_sqm_small_lot: { type: number }
-        house_arv: { type: number, nullable: true }
-        land_target_lot_size_sqm: { type: integer, default: 200 }
+        land_price_per_sqm_small_lot:
+          type: number
+          exclusiveMinimum: 0
+        house_arv:
+          type: number
+          nullable: true
+        land_target_lot_size_sqm:
+          type: integer
+          minimum: 1
+          default: 200
+
     ScenarioSettings:
       type: object
+      additionalProperties: false
       properties:
         allow_retain: { type: boolean, default: true }
-        target_lot_size_sqm: { type: integer, default: 200 }
-        min_frontage_required_m: { type: number, default: 10.0 }
+        target_lot_size_sqm: { type: integer, minimum: 1, default: 200 }
+        min_frontage_required_m: { type: number, exclusiveMinimum: 0, default: 10 }
+
     ScenarioResult:
       type: object
+      additionalProperties: false
+      required: [scenario, lots, revenue, total_cost, holding_cost, profit, margin_on_cost, roi_simple]
       properties:
         scenario: { type: string }
-        lots: { type: integer }
-        revenue: { type: number }
-        total_cost: { type: number }
-        holding_cost: { type: number }
+        lots: { type: integer, minimum: 0 }
+        revenue: { type: number, minimum: 0 }
+        total_cost: { type: number, minimum: 0, description: "purchase + project costs (ex holding)" }
+        holding_cost: { type: number, minimum: 0 }
         profit: { type: number }
-        margin_on_cost: { type: number }
-        roi_simple: { type: number }
-        notes: { type: array, items: { type: string } }
+        margin_on_cost: { type: number, description: "profit / (total_cost + holding_cost)" }
+        roi_simple: { type: number, description: "profit / purchase_price" }
+        notes:
+          type: array
+          items: { type: string }
+          default: []
+
     AdviceItem:
       type: object
+      additionalProperties: false
+      required: [code, severity, message]
       properties:
         code: { type: string }
-        severity: { type: string, enum: ["low","medium","high"] }
+        severity: { $ref: '#/components/schemas/Severity' }
         message: { type: string }
+
+    SensitivityBand:
+      type: object
+      additionalProperties: false
+      required: [base_profit, best_profit, worst_profit]
+      properties:
+        base_profit: { type: number }
+        best_profit: { type: number }
+        worst_profit: { type: number }
+
+    EvaluateRequest:
+      type: object
+      additionalProperties: false
+      required: [prop, asm, market]
+      properties:
+        prop:   { $ref: '#/components/schemas/PropertyInput' }
+        asm:    { $ref: '#/components/schemas/Assumptions' }
+        market: { $ref: '#/components/schemas/MarketBenchmarks' }
+        scen:   { $ref: '#/components/schemas/ScenarioSettings' }
+
     EvaluationResponse:
       type: object
+      additionalProperties: false
+      required: [price_per_sqm, lot_yield_estimate, scenarios]
       properties:
         price_per_sqm: { type: number }
-        lot_yield_estimate: { type: integer }
-        scenarios: { type: array, items: { $ref: '#/components/schemas/ScenarioResult' } }
-        advice: { type: array, items: { $ref: '#/components/schemas/AdviceItem' } }
+        lot_yield_estimate: { type: integer, minimum: 0 }
+        scenarios:
+          type: array
+          items: { $ref: '#/components/schemas/ScenarioResult' }
+        advice:
+          type: array
+          items: { $ref: '#/components/schemas/AdviceItem' }
+          default: []
         sensitivity:
           type: object
           additionalProperties:
-            type: object
-            properties:
-              base_profit: { type: number }
-              best_profit: { type: number }
-              worst_profit: { type: number }
+            $ref: '#/components/schemas/SensitivityBand'
