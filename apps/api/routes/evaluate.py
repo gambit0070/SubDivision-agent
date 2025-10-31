@@ -1,6 +1,8 @@
 from __future__ import annotations
 from domain.services.costs.service import compute_project_costs
 
+from domain.services.finance.duty import calc_wa_stamp_duty
+
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter
@@ -45,6 +47,12 @@ def evaluate(req: EvaluateRequest) -> EvaluationResponse:
     base_cost_ex_purchase = costs.total_ex_purchase  # только проектные
     purchase = enriched.prop.purchase_price
 
+    # Stamp duty (WA) — по таблице скобок, если она есть
+    duty = calc_wa_stamp_duty(purchase)
+
+    # Сводная стоимость без холдинга
+    total_cost = purchase + duty + base_cost_ex_purchase
+
     # Холдинг: проценты на срок сабдивижна на сумму покупки (упрощённо)
     holding_cost = float(
         purchase * (enriched.asm.annual_interest_rate / 12.0) * enriched.asm.subdiv_months
@@ -62,7 +70,8 @@ def evaluate(req: EvaluateRequest) -> EvaluationResponse:
 
     # Красивое примечание с разбиением затрат
     cost_note = "Costs: " + ", ".join(f"{k}={v:,.0f}" for k, v in costs.items.items())
-
+    cost_note = cost_note + f", DUTY={duty:,.0f}"
+    
     scenario = ScenarioResult(
         scenario="subdivide_sell_lots",
         lots=lots,
