@@ -1,9 +1,9 @@
 from __future__ import annotations
+from domain.services.costs.service import compute_project_costs
 
-from math import floor
 from typing import Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from domain.models.evaluate import (
     EvaluateRequest,
     EvaluationResponse,
@@ -41,36 +41,38 @@ def evaluate(req: EvaluateRequest) -> EvaluationResponse:
     target_lot = enriched.scen.target_lot_size_sqm if enriched.scen else enriched.market.land_target_lot_size_sqm
     revenue = float(lots * target_lot * enriched.market.land_price_per_sqm_small_lot)
 
-    #    Стоимость: покупка + минимальные транзакционные + базовая сабдив
-    base_cost = (
-        enriched.prop.purchase_price
-        + enriched.asm.settlement_cost
-        + max(enriched.asm.subdiv_cost_range_min, 0.0)
-    )
+    costs = compute_project_costs(req=enriched, lots=lots, revenue=revenue)
+    base_cost_ex_purchase = costs.total_ex_purchase  # только проектные
+    purchase = enriched.prop.purchase_price
 
-    #    Холдинг: проценты на покупку на срок сабдивижна
+    # Холдинг: проценты на срок сабдивижна на сумму покупки (упрощённо)
     holding_cost = float(
-        enriched.prop.purchase_price
-        * (enriched.asm.annual_interest_rate / 12.0)
-        * enriched.asm.subdiv_months
+        purchase * (enriched.asm.annual_interest_rate / 12.0) * enriched.asm.subdiv_months
     )
 
-    total_cost = base_cost + holding_cost
-    profit = revenue - total_cost
-    denom = total_cost if total_cost > 0 else 1.0
+    # Сводная стоимость без холдинга (для margin_on_cost)
+    total_cost = purchase + base_cost_ex_purchase
+
+    # Прибыль считаем ПОСЛЕ холдинга
+    profit = revenue - (total_cost + holding_cost)
+    tdc = total_cost + holding_cost  # total development cost (включая проценты)
+    denom = tdc if tdc > 0 else 1.0
     margin_on_cost = profit / denom
-    roi_simple = profit / enriched.prop.purchase_price
+    roi_simple = profit / purchase
+
+    # Красивое примечание с разбиением затрат
+    cost_note = "Costs: " + ", ".join(f"{k}={v:,.0f}" for k, v in costs.items.items())
 
     scenario = ScenarioResult(
         scenario="subdivide_sell_lots",
         lots=lots,
         revenue=revenue,
-        total_cost=base_cost,
-        holding_cost=holding_cost,
+        total_cost=total_cost,       # теперь это purchase + проектные затраты
+        holding_cost=holding_cost,   # отдельно
         profit=profit,
         margin_on_cost=margin_on_cost,
         roi_simple=roi_simple,
-        notes=[*ctx.notes, *ly_notes],
+        notes=[*ctx.notes, *ly_notes, cost_note],
     )
 
     # 5) Советы
@@ -95,7 +97,7 @@ def evaluate(req: EvaluateRequest) -> EvaluationResponse:
     # 6) Простая чувствительность к цене земли (±10%)
     def _profit_for(psqm: float) -> float:
         rev = float(lots * target_lot * psqm)
-        return rev - total_cost
+        return rev - (total_cost + holding_cost)
 
     base_p = float(enriched.market.land_price_per_sqm_small_lot)
     sensitivity = {
