@@ -97,3 +97,5 @@ class EvaluationResponse(BaseModel):
     scenarios: List[ScenarioResult]
     advice: List[AdviceItem] = Field(default_factory=list)
     sensitivity: Optional[Dict[str, SensitivityBand]] = None
+    best_scenario_code: Optional[str] = None
+    scenario_order: List[str] = Field(default_factory=list)

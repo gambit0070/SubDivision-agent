@@ -160,3 +160,10 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/SensitivityBand'
+        best_scenario_code:
+          type: string
+          nullable: true
+        scenario_order:
+          type: array
+          items: { type: string }
+          default: []

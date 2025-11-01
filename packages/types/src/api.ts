@@ -120,6 +120,9 @@ export interface components {
             sensitivity?: {
                 [key: string]: components["schemas"]["SensitivityBand"];
             };
+            best_scenario_code?: string | null;
+            /** @default [] */
+            scenario_order: string[];
         };
     };
     responses: never;
