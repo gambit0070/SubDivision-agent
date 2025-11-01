@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* общие мелочи */
+html, body { height: 100%; }
+body { @apply bg-slate-950 text-slate-100 antialiased; }
+
+/* чтобы цифры встали столбиком */
+.tabular-nums { font-variant-numeric: tabular-nums; }
